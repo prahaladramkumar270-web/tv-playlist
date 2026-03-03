@@ -1,5 +1,5 @@
 /* script.js */
-const API_KEY = 'PASTE_YOUR_KEY_HERE'; // 1. Put your key here
+const API_KEY = 'AIzaSyCUS3WY55emdoxiDlAx9rbIClMWpkBxsIM'; // 1. Put your key here
 const player = new Plyr('#player');
 
 // FUNCTION TO EXTRACT ID FROM URL AUTOMATICALLY
