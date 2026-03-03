@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Cinema</title>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; height: 100vh; }
+        #sidebar { width: 280px; background: #111; padding: 20px; border-right: 1px solid #333; overflow-y: auto; }
+        #main { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .item { padding: 15px; margin-bottom: 10px; background: #222; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+        .item:hover { background: #333; border-color: #555; }
+        .video-container { width: 90%; max-width: 1100px; }
+        h2 { font-size: 1.2rem; margin-top: 0; color: #E50914; } /* Netflix Red */
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <h2>📽️ My Library</h2>
+    <div id="playlist-container">Loading...</div>
+</div>
+
+<div id="main">
+    <div class="video-container">
+        <video id="player" playsinline controls></video>
+    </div>
+</div>
+
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<script>
+    const API_KEY = 'AIzaSyCUS3WY55emdoxiDlAx9rbIClMWpkBxsIM';
+    const player = new Plyr('#player');
+
+    // Load the episodes from your JSON
+    fetch('playlist.json')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('playlist-container');
+            container.innerHTML = '';
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerText = item.title;
+                div.onclick = () => playVideo(item.id, item.subs);
+                container.appendChild(div);
+            });
+        });
+
+    function playVideo(fileId, subsPath) {
+        const videoSrc = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`;
+        player.source = {
+            type: 'video',
+            sources: [{ src: videoSrc, type: 'video/mp4' }],
+            tracks: [{ kind: 'captions', label: 'English', srclang: 'en', src: subsPath, default: true }]
+        };
+        player.play();
+    }
+</script>
+</body>
+</html>
