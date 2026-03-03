@@ -2,28 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Cinema</title>
+    <title>My Personal Cinema</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-    <style>
-        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; height: 100vh; }
-        #sidebar { width: 280px; background: #111; padding: 20px; border-right: 1px solid #333; overflow-y: auto; }
-        #main { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .item { padding: 15px; margin-bottom: 10px; background: #222; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
-        .item:hover { background: #333; border-color: #555; }
-        .video-container { width: 90%; max-width: 1100px; }
-        h2 { font-size: 1.2rem; margin-top: 0; color: #E50914; } /* Netflix Red */
-        .item:focus { 
-    background: #E50914; 
-    outline: none; 
-    transform: scale(1.05); 
-}
-    </style>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div id="sidebar">
     <h2>📽️ My Library</h2>
-    <div id="playlist-container">Loading...</div>
+    <div id="playlist-container">Loading Library...</div>
 </div>
 
 <div id="main">
@@ -34,10 +21,20 @@
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 <script>
-    const API_KEY = 'AIzaSyCUS3WY55emdoxiDlAx9rbIClMWpkBxsIM';
+    const API_KEY = 'PASTE_YOUR_KEY_HERE';
     const player = new Plyr('#player');
 
-    // Load the episodes from your JSON
+    // FUNCTION TO EXTRACT ID FROM URL AUTOMATICALLY
+    function extractId(input) {
+        // If it's already a clean ID (no slashes), just return it
+        if (!input.includes('/')) return input;
+        
+        // Regex to find the ID between /d/ and the next slash
+        const regex = /\/d\/([a-zA-Z0-9_-]{25,})/;
+        const match = input.match(regex);
+        return match ? match[1] : input;
+    }
+
     fetch('playlist.json')
         .then(res => res.json())
         .then(data => {
@@ -46,8 +43,18 @@
             data.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'item';
+                div.tabIndex = 0; // Makes it focusable for TV remotes
                 div.innerText = item.title;
-                div.onclick = () => playVideo(item.id, item.subs);
+                
+                // When clicked, extract the ID from the link and play
+                div.onclick = () => {
+                    const cleanId = extractId(item.id);
+                    playVideo(cleanId, item.subs);
+                };
+                
+                // Remote control "Enter" key support
+                div.onkeydown = (e) => { if(e.key === "Enter") div.onclick(); };
+                
                 container.appendChild(div);
             });
         });
